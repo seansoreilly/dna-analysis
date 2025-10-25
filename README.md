@@ -5,9 +5,11 @@ A privacy-first DNA analysis tool that uses LLMs to explain genetic variants and
 ## Features
 
 - **Local DNA Parsing**: Parse 23andMe/Ancestry raw DNA files locally on your machine
+- **Universal Genetics Q&A**: Ask questions about ANY genetic trait, variant, or health condition
 - **Health Variant Detection**: Identify ~30+ well-studied health-related SNPs in your genome
 - **LLM-Powered Insights**: Use Claude to get personalized explanations of your genetic traits
-- **Interactive Analysis**: Ask follow-up questions about your genetics
+- **Interactive Analysis**: Ask follow-up questions about your genetics with conversation context
+- **Dynamic Lookup**: Research specific SNPs or genetic traits on-the-fly
 - **Privacy-First**: Your DNA data never leaves your computer
 
 ## Installation
@@ -31,14 +33,40 @@ echo 'export ANTHROPIC_API_KEY="your-api-key-here"' >> ~/.bashrc
 
 ## Usage
 
+### 🚀 Main Interface: Universal Genetics Chat
+
+```bash
+python3 chat_advanced.py
+```
+
+Ask questions about **ANY genetic trait or variant**:
+```
+You: What determines eye color genetically?
+You: Tell me about rs429358
+You: What genes control height?
+You: Which variants are associated with lactose intolerance?
+You: lookup rs762551
+You: trait caffeine sensitivity
+```
+
+Type `help` in chat for examples and commands.
+
+### Other Interfaces
+
+**Limited chat (30 health variants only):**
+```bash
+python3 chat.py
+```
+
+**Full analysis with automatic questions:**
+```bash
+python3 analyze_dna_auto.py
+```
+
+**Manual file selection:**
 ```bash
 python3 analyze_dna.py
 ```
-
-Follow the prompts to:
-1. Enter path to your DNA file
-2. Review detected health variants
-3. Ask questions about your genetic traits
 
 ## Architecture
 
@@ -59,27 +87,49 @@ Follow the prompts to:
 - Maps user's SNPs to health information
 - Provides detailed annotations
 
-**4. llm_interpreter.py** - LLM Explanation Engine
-- Uses Claude API for natural language interpretation
-- Explains variants in plain English
+**4. llm_interpreter.py** - Health-Specific Interpreter
+- Uses Claude API for health variant interpretation
+- Explains 30 curated variants in plain English
 - Provides personalized health insights
 - Maintains conversation context
 
-**5. analyze_dna.py** - Main Application
-- Orchestrates the full analysis pipeline
+**5. universal_interpreter.py** - Universal Genetics Engine
+- Answers questions about ANY genetic trait or variant
+- Researches genetics dynamically
+- Personalizes answers using user's SNP data
+- Supports variant lookup, trait lookup, comparisons
+
+**6. chat_advanced.py** - Universal Chat Interface
+- Main entry point for asking any genetics question
+- Commands: lookup, trait, variants, help, reset
+- Conversation history for context
+- No limitations on what you can ask
+
+**7. analyze_dna.py** - Manual DNA Analysis
+- Orchestrates full pipeline with file prompts
 - Provides interactive interface
 - Shows health variant summary
 
-## Supported Traits
+## Genetics You Can Explore
 
-Currently tracking variants related to:
-
+### Pre-Analyzed (30 Health Variants)
 - **Cardiovascular**: Heart disease, stroke, atherosclerosis risk
 - **Metabolism**: Caffeine sensitivity, lactose tolerance, obesity
 - **Drugs**: Statin response, general drug metabolism
 - **Neurological**: Alzheimer's disease, migraine risk
 - **Vitamins**: Vitamin D metabolism
 - **Other**: Bone health, athletic performance, eye color, alcohol response
+
+### Unlimited (with Universal Chat)
+Ask about **ANY genetic trait**:
+- Physical traits (height, hair color, body shape)
+- Metabolism (cholesterol, blood sugar, weight)
+- Athletic performance (muscle type, VO2 max)
+- Sensory (taste, smell, color vision)
+- Sleep and circadian rhythms
+- Personality traits (limited evidence)
+- Disease predispositions
+- And thousands of other genes and traits
 
 ## Data
 
