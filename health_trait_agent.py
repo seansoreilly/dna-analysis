@@ -29,7 +29,15 @@ class HealthTraitAgent:
 
     def __init__(self):
         """Initialize the agent with user's DNA."""
-        self.client = Anthropic()
+        import httpx
+        # Create client with explicit http client configuration
+        try:
+            self.client = Anthropic(
+                http_client=httpx.Client()
+            )
+        except (TypeError, AttributeError):
+            # Fallback if http_client parameter doesn't work
+            self.client = Anthropic()
         self.conversation_history = []
         self.user_snps = {}
         self.health_snps_db = get_all_health_snps()
