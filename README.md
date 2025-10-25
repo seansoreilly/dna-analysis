@@ -22,7 +22,7 @@ A privacy-first DNA analysis tool that uses LLMs to explain genetic variants and
 
 ```bash
 # Install dependencies
-pip install anthropic
+pip install -r requirements.txt
 
 # Set your API key
 export ANTHROPIC_API_KEY="your-api-key-here"
@@ -33,13 +33,35 @@ echo 'export ANTHROPIC_API_KEY="your-api-key-here"' >> ~/.bashrc
 
 ## Usage
 
-### 🚀 Main Interface: Universal Genetics Chat
+### 🚀 Primary Interface: Streamlit Web App
 
+**Start the Streamlit app:**
+```bash
+streamlit run streamlit_app.py
+```
+
+Then:
+1. Open your browser to the URL shown (typically `http://localhost:8501`)
+2. Load your DNA file using the sidebar
+3. Ask questions about any health trait in the chat interface
+
+This is the easiest and most interactive way to use the system!
+
+### Alternative Interfaces
+
+**Agent-based chat (recommended for command line):**
+```bash
+python3 health_trait_agent.py
+```
+
+Ask about **ANY health trait** and get personalized DNA analysis.
+
+**Advanced universal genetics chat:**
 ```bash
 python3 chat_advanced.py
 ```
 
-Ask questions about **ANY genetic trait or variant**:
+Ask questions about ANY genetic trait or variant:
 ```
 You: What determines eye color genetically?
 You: Tell me about rs429358
@@ -48,10 +70,6 @@ You: Which variants are associated with lactose intolerance?
 You: lookup rs762551
 You: trait caffeine sensitivity
 ```
-
-Type `help` in chat for examples and commands.
-
-### Other Interfaces
 
 **Limited chat (30 health variants only):**
 ```bash
