@@ -4,7 +4,7 @@
 
 ```bash
 # 1. Install Python dependencies
-pip install anthropic python-dotenv
+pip install -r requirements.txt
 
 # 2. Your API key is already in .env
 # ✓ ANTHROPIC_API_KEY is configured
@@ -14,20 +14,36 @@ pip install anthropic python-dotenv
 
 ## Running the Tool
 
-### Interactive Analysis (Full Experience)
+### 🌟 Easiest Way: Streamlit Web App
 
+```bash
+streamlit run streamlit_app.py
+```
+
+This opens a web interface in your browser where you can:
+1. Load your DNA file (sidebar)
+2. See your health variants (sidebar)
+3. Ask questions in a chat interface
+4. Get personalized insights with conversation history
+
+**Most user-friendly option!**
+
+### Command Line: Health Trait Agent
+
+```bash
+python3 health_trait_agent.py
+```
+
+Interactive terminal-based chat with the same personalized analysis.
+
+### Other Interfaces
+
+**Manual analysis:**
 ```bash
 python3 analyze_dna.py
 ```
 
-This starts an interactive session where you can:
-1. Point to your DNA file
-2. See your health variants
-3. Ask questions about your genetics
-4. Get personalized insights
-
-### Quick Test
-
+**Quick test:**
 ```bash
 python3 test_pipeline.py
 ```
