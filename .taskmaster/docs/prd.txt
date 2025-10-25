@@ -1,0 +1,42 @@
+# DNA Health Analysis Tool - Product Requirements Document
+
+## Overview
+Build a simple, privacy-first DNA analysis tool that parses personal genomic data and uses LLM to explain health-related genetic variants in plain English.
+
+## Core Requirements
+
+### 1. DNA File Parser
+- Parse 23andMe and Ancestry raw DNA files
+- Extract SNP data (rsID, genotype, chromosome, position)
+- Handle standard tab-delimited formats
+- Validate file format and completeness
+
+### 2. Health SNP Database
+- Curate list of ~50 well-studied health-related SNPs
+- Focus areas: cardiovascular health, metabolism, drug response, nutrition
+- Store SNP information: gene name, rsID, health trait, phenotypes
+- Include allele information and expected health implications
+
+### 3. Variant Annotation Integration
+- Query public APIs (MyVariant.info) for variant annotations
+- Retrieve scientific information about user's specific variants
+- Cache results to minimize API calls
+- Handle API errors gracefully
+
+### 4. LLM Explanation Engine
+- Use Claude API to interpret genetic variants
+- Convert variant data into plain English explanations
+- Generate personalized health insights based on user's genotype
+- Explain what variants mean for health traits without medical diagnosis
+
+## Privacy & Safety
+- All DNA processing happens locally on user's machine
+- Raw DNA data never uploaded to external services
+- Only annotated variant information sent to LLM
+- Include clear disclaimers that this is not medical advice
+
+## Success Criteria
+- Successfully parse 23andMe/Ancestry DNA files
+- Look up ~30+ variants from user's DNA
+- Provide clear, understandable explanations of health implications
+- Tool runs end-to-end without errors on sample data
