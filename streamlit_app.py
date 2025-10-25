@@ -55,37 +55,75 @@ with st.sidebar:
     st.markdown("### 🧬 DNA Health Analyzer")
     st.markdown("---")
 
-    # DNA file path
+    # DNA file loading options
     st.markdown("**Load Your DNA**")
-    dna_file = st.text_input(
-        "DNA file path",
-        value="source/genome_Sean_O_Reilly_v3_Full_20170428141907.txt",
+
+    load_option = st.radio(
+        "Choose how to load your DNA:",
+        options=["Upload File", "File Path"],
         label_visibility="collapsed"
     )
 
+    dna_file = None
+
+    if load_option == "Upload File":
+        uploaded_file = st.file_uploader(
+            "Choose your 23andMe DNA file",
+            type=["txt"],
+            label_visibility="collapsed"
+        )
+        if uploaded_file is not None:
+            dna_file = uploaded_file
+    else:
+        dna_file_path = st.text_input(
+            "DNA file path",
+            value="source/genome_Sean_O_Reilly_v3_Full_20170428141907.txt",
+            label_visibility="collapsed"
+        )
+        if dna_file_path:
+            dna_file = dna_file_path
+
     # Load button
     if st.button("Load DNA File", use_container_width=True, type="primary"):
-        with st.spinner("Loading and parsing your DNA..."):
-            try:
-                agent = HealthTraitAgent()
-                if agent.load_dna(dna_file):
-                    st.session_state.agent = agent
-                    st.session_state.dna_loaded = True
-                    st.session_state.user_snps_count = len(agent.user_snps)
+        if dna_file is None:
+            st.error("Please select or upload a DNA file first")
+        else:
+            with st.spinner("Loading and parsing your DNA (this may take a minute)..."):
+                try:
+                    agent = HealthTraitAgent()
 
-                    # Count health variants
-                    health_variants = sum(
-                        1 for rsid in agent.health_snps_db.keys()
-                        if rsid in agent.user_snps
-                    )
-                    st.session_state.health_variants_found = health_variants
+                    # Handle uploaded file or file path
+                    if hasattr(dna_file, 'read'):
+                        # It's an uploaded file - save temporarily
+                        import tempfile
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
+                            tmp.write(dna_file.read())
+                            tmp_path = tmp.name
+                        success = agent.load_dna(tmp_path)
+                    else:
+                        # It's a file path
+                        success = agent.load_dna(dna_file)
 
-                    st.success(f"✓ Loaded {st.session_state.user_snps_count:,} SNPs")
-                    st.success(f"✓ Found {health_variants} health-related variants")
-                else:
-                    st.error("Failed to load DNA file")
-            except Exception as e:
-                st.error(f"Error loading DNA: {str(e)}")
+                    if success:
+                        st.session_state.agent = agent
+                        st.session_state.dna_loaded = True
+                        st.session_state.user_snps_count = len(agent.user_snps)
+
+                        # Count health variants
+                        health_variants = sum(
+                            1 for rsid in agent.health_snps_db.keys()
+                            if rsid in agent.user_snps
+                        )
+                        st.session_state.health_variants_found = health_variants
+
+                        st.success(f"✓ Loaded {st.session_state.user_snps_count:,} SNPs")
+                        st.success(f"✓ Found {health_variants} health-related variants")
+                    else:
+                        st.error("Failed to load DNA file - please check the file format")
+                except FileNotFoundError:
+                    st.error("❌ DNA file not found. Please check the file path or upload the file.")
+                except Exception as e:
+                    st.error(f"❌ Error loading DNA: {str(e)}")
 
     st.markdown("---")
 
