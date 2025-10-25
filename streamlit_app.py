@@ -1,17 +1,26 @@
 """
 Streamlit app for Health Trait Agent
 Analyze ANY health trait based on YOUR DNA
+
+Users can:
+1. Upload their DNA file and get a persistent GUID URL
+2. Share the URL so they never have to reload
+3. Access their DNA data with: ?dna_guid={GUID}
 """
 
 import streamlit as st
 from pathlib import Path
 from dotenv import load_dotenv
 from health_trait_agent import HealthTraitAgent
+from dna_storage import DNAStorage
 
 # Load environment variables
 env_path = Path(__file__).parent / ".env"
 if env_path.exists():
     load_dotenv(env_path)
+
+# Initialize storage
+storage = DNAStorage()
 
 # Page configuration
 st.set_page_config(
@@ -49,6 +58,35 @@ if "agent" not in st.session_state:
     st.session_state.dna_loaded = False
     st.session_state.user_snps_count = 0
     st.session_state.health_variants_found = 0
+    st.session_state.dna_guid = None
+    st.session_state.show_guid_link = False
+
+# Check URL for GUID parameter
+query_params = st.query_params
+if "dna_guid" in query_params and not st.session_state.dna_loaded:
+    dna_guid = query_params["dna_guid"]
+    if storage.is_available():
+        with st.spinner("Loading your DNA from persistent storage..."):
+            user_snps = storage.load_dna(dna_guid)
+            if user_snps:
+                # Create agent and load stored DNA
+                agent = HealthTraitAgent()
+                agent.user_snps = user_snps
+                st.session_state.agent = agent
+                st.session_state.dna_loaded = True
+                st.session_state.user_snps_count = len(user_snps)
+                st.session_state.dna_guid = dna_guid
+
+                # Count health variants
+                health_variants = sum(
+                    1 for rsid in agent.health_snps_db.keys()
+                    if rsid in user_snps
+                )
+                st.session_state.health_variants_found = health_variants
+
+                st.success(f"✓ Loaded {len(user_snps):,} SNPs from your profile")
+            else:
+                st.error("DNA profile not found. Please check the URL or upload a new file.")
 
 # Sidebar
 with st.sidebar:
@@ -116,8 +154,19 @@ with st.sidebar:
                         )
                         st.session_state.health_variants_found = health_variants
 
+                        # Try to save to persistent storage (Supabase)
+                        if storage.is_available():
+                            guid = storage.save_dna(agent.user_snps, agent.health_snps_db)
+                            if guid:
+                                st.session_state.dna_guid = guid
+                                st.session_state.show_guid_link = True
+
                         st.success(f"✓ Loaded {st.session_state.user_snps_count:,} SNPs")
                         st.success(f"✓ Found {health_variants} health-related variants")
+
+                        # Show persistent URL if available
+                        if st.session_state.dna_guid:
+                            st.info(f"✨ Your DNA is now saved! Share this link to never reload:\n\n`{storage.get_dna_url(st.session_state.dna_guid)}`")
                     else:
                         st.error("Failed to load DNA file - please check the file format")
                 except FileNotFoundError:
@@ -132,6 +181,13 @@ with st.sidebar:
         st.markdown("**📊 Your DNA Profile**")
         st.metric("Total SNPs Loaded", f"{st.session_state.user_snps_count:,}")
         st.metric("Health Variants", st.session_state.health_variants_found)
+
+        # Show persistent URL if available
+        if st.session_state.dna_guid:
+            st.markdown("**🔗 Persistent Link**")
+            persistent_url = storage.get_dna_url(st.session_state.dna_guid)
+            st.code(persistent_url, language="text")
+            st.caption("Share this link to access your DNA instantly")
 
         st.markdown("---")
 
